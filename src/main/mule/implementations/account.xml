@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:dynamics="http://www.mulesoft.org/schema/mule/dynamics" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/dynamics http://www.mulesoft.org/schema/mule/dynamics/current/mule-dynamics.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="get-accounts-flow" doc:id="49a3ab1c-6c04-4016-a6ad-7cc5798bf02e">
+		<set-variable value="#[attributes.queryParams.accountName]" doc:name="Set vars.accountName" doc:id="c19c6242-a7df-4589-a142-2aee11432d85" variableName="accountName"/>
+		<choice doc:name="Choice" doc:id="9f2aa01e-6c2f-4892-b0e2-6d33e2efe83d" >
+			<when expression="#[!isEmpty(vars.accountName)]">
+				<flow-ref doc:name="get-account-by-name" doc:id="12f69358-a62e-40bb-8ff5-a22c26f6ea76" name="get-account-by-name-flow"/>
+			</when>
+			<otherwise >
+				<set-variable value='#["dsql:SELECT accountid,name,emailaddress1,telephone1,transactioncurrencyid,accountnumber FROM accounts"]' doc:name="Set vars.selectDynamicQuery" doc:id="0bb5ffd4-df66-499d-b2be-9a7a6522af13" variableName="selectDynamicQuery"/>
+				<flow-ref doc:name="get-dyn-query-connector-subflow" doc:id="1c5c46f5-bea2-40df-8218-17f90f056955" name="get-dyn-query-connector-subflow" />
+				<ee:transform doc:name="Account mapping return object" doc:id="b9116f89-1141-4646-a8e1-29dd15218eac">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map (accountData, indexOfData) -> {
+	"id": accountData.accountid,
+    "accountName": accountData.name,
+    "email": accountData.emailaddress1,
+    "phone": accountData.telephone1,
+    "currency": accountData.transactioncurrencyid,
+    "accountNumber": accountData.accountnumber
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="get-account-by-id-flow" doc:id="b5ef1e70-a5a7-45f9-b3c4-c93cd285e107" >
+		<ee:transform doc:name="Set vars.dynId" doc:id="01ef2094-340d-427b-af31-9973e2fcd002">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="dynId" ><![CDATA[%dw 2.0
+output application/java
+---
+if(attributes.uriParams.'ID' != null)(
+	attributes.uriParams.'ID'
+)else(
+	vars.dynId
+)]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<set-variable value="#[&quot;dsql:SELECT accountid,name,emailaddress1,telephone1,accountnumber FROM accounts where accountid='&quot; ++ vars.dynId ++ &quot;'&quot;]" doc:name="Set vars.selectDynamicQuery" doc:id="79d05c56-a4fc-479b-b007-9fb951e67f0b" variableName="selectDynamicQuery" />
+		<flow-ref doc:name="get-dyn-query-connector-subflow" doc:id="df4fe497-b92a-446b-a563-1f45fba1e308" name="get-dyn-query-connector-subflow" />
+		<flow-ref doc:name="get-by-id-account-mapping-subflow" doc:id="8a23ffe6-1df8-4fc2-96f5-cdc0b0b5883c" name="get-by-id-account-mapping-subflow" />
+	</flow>
+	<flow name="get-account-by-name-flow" doc:id="283eb7dd-24dd-4ef6-b1b8-012b824cd33a">
+		<set-variable value="#[&quot;dsql:SELECT accountid,name,emailaddress1,telephone1,accountnumber FROM accounts where name='&quot; ++ vars.accountName ++ &quot;'&quot;]" doc:name="Set vars.selectDynamicQuery" doc:id="68fb3081-4ca3-461c-b31b-547912debe41" variableName="selectDynamicQuery" />
+		<flow-ref doc:name="get-dyn-query-connector-subflow" doc:id="f7cda666-6691-4f6e-a9fe-011fc27b9e2f" name="get-dyn-query-connector-subflow" />
+		<flow-ref doc:name="get-by-accountName-mapping-subflow" doc:id="285299f6-8172-430f-85e6-09b7aee79e5d" name="get-by-accountName-mapping-subflow" />
+	</flow>
+	<flow name="post-account-flow" doc:id="5233f33f-532c-44b3-a4f0-50acc753f649" >
+		<logger level="INFO" doc:name="Log Create Start" doc:id="f290b254-c455-4631-8a55-6c2c2cb55721" message='#["Create account flow started"]'/>
+		<ee:transform doc:name="Set Create vars" doc:id="0eb06185-07f5-4a29-8765-84e860cafd1d">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="logicalName"><![CDATA["account"]]></ee:set-variable>
+				<ee:set-variable variableName="attributes" ><![CDATA[payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="post-dyn-create-connector-subflow" doc:id="57844cc1-5a7d-4c61-afb4-06504c0e677e" name="post-dyn-create-connector-subflow" target="accountId"/>
+		<ee:transform doc:name="Account mapping return object" doc:id="77686f00-005c-4514-af32-21704e3f2d53" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "accountName": payload.name,
+  "email": payload.emailaddress1,
+  "phone": payload.telephone1,
+  "sfId": payload.accountnumber,
+  "dynId": vars.accountId,
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log Create End" doc:id="6d66f461-d31f-472d-9fad-fbb135b484fe" message='#["Create account flow ended"]' />
+	</flow>
+	<flow name="put-account-flow" doc:id="1dcbc48f-19fb-49d8-88fc-fbab925b7cef" >
+		<logger level="INFO" doc:name="Log Update Start" doc:id="ec2e5bbf-61c1-4f68-a1ae-60965516b82d" message='#["Update flow started"]' />
+		<ee:transform doc:name="Account mapping" doc:id="fbb6fe19-154c-4e65-9b1f-7f016e64fd38" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	entityId: attributes.uriParams.'ID',
+	attributes: {
+		"name": payload.name,
+		"emailaddress1": payload.emailaddress1,
+		"telephone1": payload.telephone1,
+		"accountnumber": payload.accountnumber
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Set Update vars" doc:id="940b78c0-ae97-48f7-8a0f-9820d589327e">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="logicalName"><![CDATA["account"]]></ee:set-variable>
+				<ee:set-variable variableName="attributes"><![CDATA[payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="put-dyn-update-connector-subflow" doc:id="1719cb24-bfc0-40c0-9aab-1e79da45bc5e" name="put-dyn-update-connector-subflow"/>
+		<ee:transform doc:name="Account mapping return object" doc:id="b810483f-8486-4d20-8000-f978488ded17" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{	
+    "accountName": payload.attributes.name,
+    "email": payload.attributes.emailaddress1,
+    "phone": payload.attributes.telephone1,
+    "sfId": payload.attributes.accountnumber,
+    "dynId": payload.entityId,
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log Update End" doc:id="821faa90-68e7-42ad-ba24-4fb2e46f1804" message='#["Update flow ended"]' />
+	</flow>
+	<flow name="delete-account-flow" doc:id="c5b32c00-9de1-4512-b4bc-6abd7e0b6ef7" >
+		<logger level="INFO" doc:name="Log Delete Start" doc:id="6d6256da-7bce-4449-9891-c3c00fe00a6c" message='#["Delete flow started"]' />
+		<ee:transform doc:name="Set Delete vars" doc:id="acba6dc1-b156-4672-9a20-53776cb28b19">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="logicalName"><![CDATA["account"]]></ee:set-variable>
+				<ee:set-variable variableName="attributes"><![CDATA[attributes.uriParams.'ID']]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="delete-dyn-connector-subflow" doc:id="1327d1d6-4024-4264-8fa6-da13ddd02ae1" name="delete-dyn-connector-subflow"/>
+		<logger level="INFO" doc:name="Log Delete End" doc:id="24704c06-3f17-453e-84d4-e4c1b98a6801" message='#["Delete flow ended"]' />
+	</flow>
+	<sub-flow name="get-by-id-account-mapping-subflow" doc:id="bb38f9a7-84c3-4967-b7c3-12d67d416b7c">
+		<choice doc:name="Choice" doc:id="88724976-8a55-44c2-989c-74fc74435fc0">
+			<when expression="#[isEmpty(payload)]">
+				<set-payload value='#[""]' doc:name="Set Empty Payload" doc:id="59812ba0-d192-442a-9bc5-698204e58717" />
+				<logger level="INFO" doc:name="Log Account not found" doc:id="cc31a42d-8bd4-4181-a104-5403d7efba23" message='#["Account not found"]' />
+			</when>
+			<otherwise>
+				<ee:transform doc:name="Account mapping" doc:id="63bf6186-9450-4297-bc0f-a6e69ce33a4e">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"accountName": payload.name[0],
+	"email": payload.emailaddress1[0],
+	"phone": payload.telephone1[0],
+	"sfId": payload.accountnumber[0],
+	"dynId": payload.accountid[0]
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</sub-flow>
+	<sub-flow name="get-by-accountName-mapping-subflow" doc:id="71b075c6-91ac-46a6-ac21-91520a92eb74">
+		<choice doc:name="Choice" doc:id="b3f4aaee-acf3-4ac0-9ae9-19ff2fac76f7">
+			<when expression="#[!isEmpty(payload)]">
+				<ee:transform doc:name="Account mapping" doc:id="d84c0604-864c-43e2-b0a4-f052d3dfa705">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "accountName": payload.name[0],
+    "email": payload.emailaddress1[0],
+    "phone": payload.telephone1[0],
+	"sfId": payload.accountnumber[0],
+    "dynId": payload.accountid[0]
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise>
+				<set-payload value='#[""]' doc:name="Set Empty Payload" doc:id="a1fe89bd-14af-4ea1-b408-eeb0dd5e7020" />
+				<logger level="INFO" doc:name="Log Account Not Found" doc:id="ba9d160e-d350-4e20-9405-54ef626a2b34" message='#["Account Not Found"]' />
+			</otherwise>
+		</choice>
+	</sub-flow>
+</mule>

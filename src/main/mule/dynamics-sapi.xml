@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <flow name="dynamics-sapi-main">
+        <http:listener config-ref="dynamics-sapi-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="dynamics-sapi-config" />
+    </flow>
+    <flow name="dynamics-sapi-console">
+        <http:listener config-ref="dynamics-sapi-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="dynamics-sapi-config" />
+    </flow>
+    <flow name="put:\opportunity\(ID):application\json:dynamics-sapi-config">
+        <ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="ID">attributes.uriParams.'ID'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Message: "Opporunity Successfully Updated"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\account\(ID):application\json:dynamics-sapi-config">
+        <flow-ref doc:name="put-account-flow" doc:id="be335c51-84ad-4fb1-9880-56fb2f79dd0d" name="put-account-flow" />
+    </flow>
+    <flow name="put:\contact\(ID):application\json:dynamics-sapi-config">
+        <flow-ref doc:name="put-contact-flow" doc:id="7f5f58e0-3f65-407e-b852-f709e0c1127c" name="put-contact-flow" />
+    </flow>
+    <flow name="delete:\opportunity\(ID):dynamics-sapi-config">
+        <ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="ID">attributes.uriParams.'ID'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\contact\(ID):dynamics-sapi-config">
+        <flow-ref doc:name="delete-contact-flow" doc:id="ac2ba101-43ec-49e4-9a47-81442ce1741b" name="delete-contact-flow" />
+    </flow>
+    <flow name="delete:\account\(ID):dynamics-sapi-config">
+        <flow-ref doc:name="delete-account-flow" doc:id="d2718e23-4537-42ba-8124-89ded4472b4d" name="delete-account-flow" />
+    </flow>
+    <flow name="get:\account:dynamics-sapi-config">
+        <flow-ref doc:name="get-accounts-flow" doc:id="310ed814-b322-47e4-b4fd-5e5a5231a914" name="get-accounts-flow" />
+    </flow>
+    <flow name="get:\contact:dynamics-sapi-config">
+        <flow-ref doc:name="get-contacts-flow" doc:id="205c9469-905a-4ee7-9183-2ecae74e4bfe" name="get-contacts-flow" />
+    </flow>
+    <flow name="get:\opportunity:dynamics-sapi-config">
+        <flow-ref doc:name="get-opportunities-flow" doc:id="c25a9d8a-db40-462e-ac79-2a9ffc7e5da4" name="get-opportunities-flow" />
+    </flow>
+    <flow name="get:\account\(ID):dynamics-sapi-config">
+        <flow-ref doc:name="get-account-by-id-flow" doc:id="65f1886d-e792-4e1e-9e0d-432a9fb6ba7c" name="get-account-by-id-flow" />
+    </flow>
+    <flow name="get:\contact\(ID):dynamics-sapi-config">
+        <flow-ref doc:name="get-contact-by-id-flow" doc:id="707165bf-3950-4802-8ad5-b10aff50466f" name="get-contact-by-id-flow" />
+    </flow>
+    <flow name="get:\opportunity\(ID):dynamics-sapi-config">
+        <flow-ref doc:name="get-opportunity-by-id-flow" doc:id="cb472bd2-025a-472a-a79b-2d8bd5f216e6" name="get-opportunity-by-id-flow" />
+    </flow>
+    <flow name="post:\account:application\json:dynamics-sapi-config">
+        <flow-ref doc:name="post-account-flow" doc:id="866d2a01-973d-4f5b-a20c-d26ce8ea38c5" name="post-account-flow" />
+    </flow>
+    <flow name="post:\contact:application\json:dynamics-sapi-config">
+        <flow-ref doc:name="post-contact-flow" doc:id="2772abc7-7d5b-4a2b-b96d-0d82046801c1" name="post-contact-flow" />
+    </flow>
+    <flow name="post:\opportunity:application\json:dynamics-sapi-config">
+        <flow-ref doc:name="post-opportunity-flow" doc:id="52219b9a-591a-49aa-8689-ae8973e635ff" name="post-opportunity-flow" />
+    </flow>
+</mule>

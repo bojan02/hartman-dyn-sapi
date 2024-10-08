@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_49a3ab1c_6c04_4016_a6ad_7cc5798bf02e_Output_Payload = Array<{  accountName: String,   phone: String,   currency: String,   id: String,   accountNumber: String,   email: String,   _?: Any}>
+

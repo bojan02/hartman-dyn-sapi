@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:dynamics="http://www.mulesoft.org/schema/mule/dynamics"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/dynamics http://www.mulesoft.org/schema/mule/dynamics/current/mule-dynamics.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="get-opportunities-flow" doc:id="b81c2d06-3cc1-4cfb-9389-7c20661c0b59" >
+		<set-variable value='#["dsql:SELECT opportunityid,name,_customerid_value,statecode,estimatedvalue,actualclosedate FROM opportunities"]' doc:name="Set vars.selectDynamicQuery" doc:id="668041b4-b312-4d28-a7c3-170c0c2fa613" variableName="selectDynamicQuery"/>
+		<flow-ref doc:name="get-dyn-query-connector-subflow" doc:id="e2542239-4c94-4b56-bc54-94e84c07d722" name="get-dyn-query-connector-subflow" />
+		<ee:transform doc:name="Opportunity mapping" doc:id="c057b604-e1ed-4a94-88ad-f248d67440de" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map (opportunityData, indexOfData) -> {
+	"id": opportunityData.opportunityid,
+	"topic": opportunityData.name,
+	"potentialCustomer": opportunityData."_customerid_value",
+	"status": opportunityData.statecode,
+	"estRevenue": opportunityData.estimatedvalue,
+	"actualCloseDate": opportunityData.actualclosedate,
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="get-opportunity-by-id-flow" doc:id="8014b951-6a3e-48cb-ab51-dbefdf6df997" >
+		<ee:transform doc:name="Set Retrieve vars" doc:id="71f632fc-96ac-460e-be7b-177739da5007">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="logicalName"><![CDATA["opportunity"]]></ee:set-variable>
+				<ee:set-variable variableName="id"><![CDATA[attributes.uriParams.'ID' as String]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="get-dyn-retrieve-connector-subflow" doc:id="b8b7264b-7f0d-4431-87a5-87c8b6c2b699" name="get-dyn-retrieve-connector-subflow" />
+		<ee:transform doc:name="Transform Message" doc:id="6d0f700e-01e0-4abf-9b89-723a953dc996" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Opportunity mapping" doc:id="6589e33b-2bf3-494c-b68c-6c21da5a96fb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"name": payload.name,
+    "statecode": payload.statecode,
+    "estimatedvalue": payload.estimatedvalue,
+    "actualclosedate": payload.actualclosedate
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="post-opportunity-flow" doc:id="114fabdd-d22f-4398-adac-f6bb4f4f9825" >
+		<logger level="INFO" doc:name="Log Create Start" doc:id="4fcf05ec-0d11-41d0-bba3-cfbfca3ac7fa" message='#["Create opportunity flow started"]'/>
+		<set-variable value="#[payload.name]" doc:name="Set vars.accountName" doc:id="05122c59-d827-4cba-9870-df143df34cde" variableName="accountName" />
+		<set-variable value="#[payload.status]" doc:name="Set vars.status" doc:id="954c811b-406d-49c6-9ba6-0e4354c54b71" variableName="status" />
+		<flow-ref doc:name="get-account-by-name-flow" doc:id="6914ec23-8035-467e-9a09-878463cc0a5a" name="get-account-by-name-flow" target="account" />
+		<ee:transform doc:name="Opportunity mapping" doc:id="e0a5181b-fc11-41fd-a984-6a9d3879e37b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"name": payload.topic,
+	"customerid_account@odata.bind": "/accounts(" ++ vars.account.dynId ++ ")",
+	"estimatedvalue": payload.estRevenue,
+	"actualclosedate": payload.actualCloseDate as Date,
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Set Create vars" doc:id="b94d9262-184a-42df-9c26-7f2ed79d5014">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="logicalName"><![CDATA["opportunity"]]></ee:set-variable>
+				<ee:set-variable variableName="attributes"><![CDATA[payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="post-dyn-create-connector-subflow" doc:id="5b0458ae-ed8b-4a50-8970-d9f14bb06a56" name="post-dyn-create-connector-subflow" target="opportunityId" />
+		<choice doc:name="Choice" doc:id="ff735501-b8c9-4ce4-90ef-398fdfadf4f1" >
+			<when expression="#[vars.status != 0]">
+				<ee:transform doc:name="Set vars.loginBody" doc:id="6fe665e3-22b5-43b0-bcf9-53b2dab6895f">
+					<ee:message />
+					<ee:variables>
+						<ee:set-variable variableName="loginBody" ><![CDATA[%dw 2.0
+output multipart/form-data
+---
+{
+	parts: {
+		grant_type: {
+			headers: {
+				"Content-Type": "text/plain"
+			},
+			content: "client_credentials"
+		},
+		scope: {
+			headers: {
+				"Content-Type": "text/plain"
+			},
+			content: "https://org9f1c12ff.crm4.dynamics.com//.default"
+		},
+		client_id: {
+			headers: {
+				"Content-Type": "text/plain"
+			},
+			content: p('secure::dynamicsConfig.clientId')
+		},
+		client_secret: {
+			headers: {
+				"Content-Type": "text/plain"
+			},
+			content: p('secure::dynamicsConfig.clientSecret')
+		}
+	}
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="token-request-subflow" doc:id="0a38f989-9c35-4c19-a5a2-b7045cd4dcfd" name="token-request-subflow" />
+				<ee:transform doc:name="Set vars.condition" doc:id="bb18d42b-331c-47df-aa62-833351a433d8" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="condition" ><![CDATA[%dw 2.0
+output application/json
+---
+if(vars.status == 2) "post-request-lost-opportunity-subflow"
+else "post-request-won-opportunity-subflow"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<ee:transform doc:name="Opportunity mapping" doc:id="bcd0c895-7501-454a-a404-cde67c0c46ef">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"OpportunityClose": {
+		"opportunityid@odata.bind": "/opportunities(" ++ vars.opportunityId ++ ")"
+	},
+	"Status": -1
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables />
+				</ee:transform>
+				<flow-ref doc:name="Route to flow" doc:id="afb706ff-7412-47cb-9cf1-57ca2271317a" name="#[vars.condition]" />
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Log statecode is set to Open" doc:id="83c09f17-032c-4c40-935e-012f6b23afaa" message='#["Log statecode is 0, opportunity flow ended"]'/>
+			</otherwise>
+		</choice>
+	</flow>
+	<sub-flow name="post-request-lost-opportunity-subflow" doc:id="eccb2766-1e5a-4dc2-aef2-c3634828272a" >
+		<ee:transform doc:name="Set opportunity request vars" doc:id="f44db4b3-b5f5-449f-b152-ed7a92ae061c" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="body" ><![CDATA[payload]]></ee:set-variable>
+				<ee:set-variable variableName="path" ><![CDATA["/data/v9.2/LoseOpportunity"]]></ee:set-variable>
+				<ee:set-variable variableName="headers" ><![CDATA["Bearer " ++ vars.token.access_token]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="set-opportunity-state-request-subflow" doc:id="b6cfda74-6f90-4016-a2d6-4634a2d56ac2" name="set-opportunity-state-request-subflow" />
+		<logger level="INFO" doc:name="Log statecode is set to Lost" doc:id="38d22df6-dd6b-4424-96fe-a91cfbc038aa" message='#["Log statecode is set to Lost, opportunity flow ended"]' />
+	</sub-flow>
+	<sub-flow name="post-request-won-opportunity-subflow" doc:id="1e0cf5d9-ef7b-47cc-915c-29c09b87a962" >
+		<ee:transform doc:name="Set opportunity request vars" doc:id="cc4bdc50-071a-41f5-a5a2-c66c0b5a9611">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="body"><![CDATA[payload]]></ee:set-variable>
+				<ee:set-variable variableName="path"><![CDATA["/data/v9.2/WinOpportunity"]]></ee:set-variable>
+				<ee:set-variable variableName="headers" ><![CDATA["Bearer " ++ vars.token.access_token]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="set-opportunity-state-request-subflow" doc:id="322906e0-f6d2-4c1d-8c40-effbf7f7638b" name="set-opportunity-state-request-subflow" />
+		<logger level="INFO" doc:name="Log statecode is set to Won" doc:id="23a4822b-3376-4e1c-8fec-58fae54c6775" message='#["Log statecode is set to Won, opportunity flow ended"]' />
+	</sub-flow>
+</mule>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:dynamics="http://www.mulesoft.org/schema/mule/dynamics" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/dynamics http://www.mulesoft.org/schema/mule/dynamics/current/mule-dynamics.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="account-post-flow" doc:id="9ba03fe3-935e-4822-a416-3c1454a484b9" >
+		<dynamics:on-modified-object doc:name="On modified object" doc:id="d2e40223-986f-4a3b-a760-63464c68b9e0" config-ref="Dynamics_365_Dynamics_365" entityType="account">
+			<scheduling-strategy >
+				<fixed-frequency frequency="30" timeUnit="SECONDS" startDelay="5"/>
+			</scheduling-strategy>
+		</dynamics:on-modified-object>
+		<logger level="INFO" doc:name="Log Account on modified object started" doc:id="8a09c745-1696-49eb-8630-782adfae53fd" message='#["Log Account on modified object started"]' />
+		<ee:transform doc:name="Map to CDM" doc:id="7c9fe015-5006-4f18-9802-36774ae5cf3c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "accountName": payload.name,
+  "email": payload.emailaddress1,
+  "phone": payload.telephone1,
+  "sfId": payload.accountnumber,
+  "dynId": payload.accountid
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Send to MD API" doc:id="128b7d54-99a6-4174-85cc-f99a11e6461d" config-ref="HTTP_Request_configuration" path="/dynaccount" target="sfAccount" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"client_secret" : p('secure::clientIdenforcement.clientSecret'),
+	"client_id" : p('secure::clientIdenforcement.clientId')
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Log Account on modified object ended" doc:id="241e800b-a41a-4aa4-a5bf-d9ee0d0ac01e" message='#["Log Account on modified object ended"]' />
+	</flow>
+	<flow name="account-delete-flow" doc:id="dc7e6927-368c-4fc8-94a9-302ca2c54f80" >
+		<dynamics:on-deleted-object-listener doc:name="On deleted object listener" doc:id="5bc251b5-a5ee-4296-9be0-0442efad5598" config-ref="Dynamics_365_Dynamics_365" entityType="account">
+			<scheduling-strategy >
+				<fixed-frequency timeUnit="SECONDS" frequency="30"/>
+			</scheduling-strategy>
+		</dynamics:on-deleted-object-listener>
+		<logger level="INFO" doc:name="Log Account on deleted object started" doc:id="fc2ff174-3d38-4e07-818b-62406b8960d9" message='#["Log Account on deleted object started"]' />
+		<ee:transform doc:name="Map to CDM" doc:id="1c3609a0-44dc-4a04-a44d-7cc36e32e8af">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "dynId": payload.id
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="DELETE" doc:name="Send to MD API" doc:id="713919c7-80e7-46ca-ad7b-cad733029642" config-ref="HTTP_Request_configuration" path="/dynaccountdelete" target="dynAccount" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"client_secret" : p('secure::clientIdenforcement.clientSecret'),
+	"client_id" : p('secure::clientIdenforcement.clientId')
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Log Account on deleted object ended" doc:id="351879ba-47ba-45ff-8915-bb3fa0698b72" message='#["Log Account on deleted object ended"]' />
+	</flow>
+</mule>

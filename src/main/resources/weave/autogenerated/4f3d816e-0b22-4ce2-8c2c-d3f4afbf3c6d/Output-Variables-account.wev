@@ -1,0 +1,35 @@
+%dw 2.0
+
+type auto_4f3d816e_0b22_4ce2_8c2c_d3f4afbf3c6d_Output_Variables_account = {|
+  accountName: java_lang_Object, 
+  email: java_lang_Object_0, 
+  phone: java_lang_Object_1, 
+  sfid: java_lang_Object_2, 
+  dynId: java_lang_Object_3
+|}
+type java_lang_Object_0 = {|  |} {"typeAlias": "Object",
+"class": "java.lang.Object",
+"typeId": "java.lang.Object"}
+
+
+type java_lang_Object_1 = {|  |} {"typeAlias": "Object",
+"class": "java.lang.Object",
+"typeId": "java.lang.Object"}
+
+
+type java_lang_Object = {|  |} {"typeAlias": "Object",
+"class": "java.lang.Object",
+"typeId": "java.lang.Object"}
+
+
+type java_lang_Object_2 = {|  |} {"typeAlias": "Object",
+"class": "java.lang.Object",
+"typeId": "java.lang.Object"}
+
+
+type java_lang_Object_3 = {|  |} {"typeAlias": "Object",
+"class": "java.lang.Object",
+"typeId": "java.lang.Object"}
+
+
+

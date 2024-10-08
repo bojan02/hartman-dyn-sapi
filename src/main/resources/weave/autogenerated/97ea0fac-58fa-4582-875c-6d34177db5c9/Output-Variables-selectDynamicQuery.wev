@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_97ea0fac_58fa_4582_875c_6d34177db5c9_Output_Variables_selectDynamicQuery = Any
+

@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_97ea0fac_58fa_4582_875c_6d34177db5c9_Input_Payload = Array<{|  id: String | Null,   accountName: String | Null,   email: String | Null,   phone: String | Null,   currency: Null,   accountNumber: String | Null|}>
+

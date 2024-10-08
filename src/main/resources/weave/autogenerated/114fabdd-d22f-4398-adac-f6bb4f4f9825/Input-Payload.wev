@@ -1,0 +1,11 @@
+%dw 2.0
+
+type auto_114fabdd_d22f_4398_adac_f6bb4f4f9825_Input_Payload = {
+  estRevenue: Number, 
+  potentialCustomer: String, 
+  topic: String, 
+  actualCloseDate: String, 
+  status: Number, 
+  _?: Any
+}
+

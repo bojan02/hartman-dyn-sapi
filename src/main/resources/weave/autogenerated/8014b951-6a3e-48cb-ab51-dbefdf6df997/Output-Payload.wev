@@ -1,0 +1,12 @@
+%dw 2.0
+
+type auto_8014b951_6a3e_48cb_ab51_dbefdf6df997_Output_Payload = {
+  estRevenue: Number, 
+  potentialCustomer: String, 
+  topic: String, 
+  id: String, 
+  actualCloseDate: String, 
+  status: Number, 
+  _?: Any
+}
+

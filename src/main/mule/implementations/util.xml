@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:dynamics="http://www.mulesoft.org/schema/mule/dynamics"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/dynamics http://www.mulesoft.org/schema/mule/dynamics/current/mule-dynamics.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<sub-flow name="get-dyn-query-connector-subflow" doc:id="97ea0fac-58fa-4582-875c-6d34177db5c9">
+		<dynamics:retrieve-multiple-by-query doc:name="Retrieve multiple by query" doc:id="c2ce0c4e-943f-4166-b1b3-ca63c2605700" config-ref="Dynamics_365_Dynamics_365">
+					<dynamics:query><![CDATA[#[vars.selectDynamicQuery]]]></dynamics:query>
+				</dynamics:retrieve-multiple-by-query>
+	</sub-flow>
+	<sub-flow name="get-dyn-retrieve-connector-subflow" doc:id="08d9f051-d3d1-43e8-8474-47bc5a568bb4" >
+		<dynamics:retrieve logicalName="#[vars.logicalName]" doc:name="Retrieve" doc:id="4964295d-7fc7-4028-a222-dd1284656fa9" config-ref="Dynamics_365_Dynamics_365">
+			<dynamics:id ><![CDATA[#[vars.id]]]></dynamics:id>
+		</dynamics:retrieve>
+	</sub-flow>
+	<sub-flow name="post-dyn-create-connector-subflow" doc:id="42cd35c3-8377-499b-a588-83b79ab1d0a7" >
+		<dynamics:create doc:name="Create" doc:id="47afb7de-b0cc-41d7-913c-ae4ed1112320" config-ref="Dynamics_365_Dynamics_365" logicalName="#[vars.logicalName]">
+			<dynamics:attributes ><![CDATA[#[vars.attributes]]]></dynamics:attributes>
+		</dynamics:create>
+	</sub-flow>
+	<sub-flow name="put-dyn-update-connector-subflow" doc:id="5423d15d-d376-4421-870d-88d4699f48b9" >
+		<dynamics:update doc:name="Update" doc:id="09fd3323-547a-498d-a6c8-20596501246a" config-ref="Dynamics_365_Dynamics_365" logicalName="#[vars.logicalName]">
+			<dynamics:attributes ><![CDATA[#[vars.attributes]]]></dynamics:attributes>
+		</dynamics:update>
+	</sub-flow>
+	<sub-flow name="delete-dyn-connector-subflow" doc:id="38a71856-b6ab-4971-8d66-22f248c7f550">
+		<dynamics:delete doc:name="Delete" doc:id="25c1793f-fe37-4886-aa51-dfd6ff3b8cc7" config-ref="Dynamics_365_Dynamics_365" logicalName="#[vars.logicalName]">
+			<dynamics:id><![CDATA[#[vars.attributes]]]></dynamics:id>
+		</dynamics:delete>
+	</sub-flow>
+	<sub-flow name="token-request-subflow" doc:id="559be536-52d6-4723-98e3-f4c8a4596113">
+		<http:request method="POST" doc:name="Token Request" doc:id="e09ba662-3c69-410a-b1e9-ab7b6d3a10a6" config-ref="HTTP_Request_login_microsoft_configuration" path="/4bf7b59d-2730-43a2-96a9-292d6f6f1ef9/oauth2/v2.0/token" target="token">
+					<http:body><![CDATA[#[vars.loginBody]]]></http:body>
+				</http:request>
+	</sub-flow>
+	<sub-flow name="set-opportunity-state-request-subflow" doc:id="acc51132-d8ff-4c5d-8499-aba42cc9a452">
+		<http:request method="POST" doc:name="Set Opportunity State Request" doc:id="8acfbf72-f688-4252-9d91-2e42ef0b1519" config-ref="HTTP_Request_dynamics_sales_hub_configuration" path="#[vars.path]" sendCorrelationId="AUTO">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"Authorization" : vars.headers
+}]]]></http:headers>
+		</http:request>
+	</sub-flow>
+</mule>
