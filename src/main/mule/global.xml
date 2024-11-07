@@ -36,4 +36,11 @@
         </dynamics:oauth-client-credentials-connection>
     </dynamics:dynamics-config>
 	<api-gateway:autodiscovery apiId="${secure::apiDiscovery.apiId}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="c80eab82-3489-423f-9708-9f445599ebad" flowRef="dynamics-sapi-main" />
+	<njams:inline-configuration-config name="NJAMS_Inline_configuration" doc:name="NJAMS Inline configuration" doc:id="99e6a777-0cfa-4c96-9482-dc278e71b213" deployment="dyn-sapi" appName="1.0.0" >
+		<njams:communication-protocol >
+			<njams:http-instance host="os0146" port="8080" path="njams" dataProviderPrefix="sdk" >
+				<njams:authentication user="admin" password="admin" />
+			</njams:http-instance>
+		</njams:communication-protocol>
+	</njams:inline-configuration-config>
 </mule>
