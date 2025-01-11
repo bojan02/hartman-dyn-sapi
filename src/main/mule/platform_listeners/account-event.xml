@@ -11,7 +11,7 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 	<flow name="account-post-flow" doc:id="9ba03fe3-935e-4822-a416-3c1454a484b9" >
 		<dynamics:on-modified-object doc:name="On modified object" doc:id="d2e40223-986f-4a3b-a760-63464c68b9e0" config-ref="Dynamics_365_Dynamics_365" entityType="account">
 			<scheduling-strategy >
-				<fixed-frequency frequency="30" timeUnit="SECONDS" startDelay="5"/>
+				<fixed-frequency frequency="1" timeUnit="SECONDS"/>
 			</scheduling-strategy>
 		</dynamics:on-modified-object>
 		<logger level="INFO" doc:name="Log Account on modified object started" doc:id="8a09c745-1696-49eb-8630-782adfae53fd" message='#["Log Account on modified object started"]' />
@@ -29,14 +29,16 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<http:request method="POST" doc:name="Send to MD API" doc:id="128b7d54-99a6-4174-85cc-f99a11e6461d" config-ref="HTTP_Request_configuration" path="/dynaccount" target="sfAccount" >
-			<http:headers ><![CDATA[#[output application/java
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="f20abd01-8131-4548-8d85-4d34dfb40404" >
+			<http:request method="POST" doc:name="Send to MD API" doc:id="128b7d54-99a6-4174-85cc-f99a11e6461d" config-ref="HTTP_Request_configuration" path="/dynaccount" target="sfAccount">
+			<http:headers><![CDATA[#[output application/java
 ---
 {
 	"client_secret" : p('secure::clientIdenforcement.clientSecret'),
 	"client_id" : p('secure::clientIdenforcement.clientId')
 }]]]></http:headers>
 		</http:request>
+		</until-successful>
 		<logger level="INFO" doc:name="Log Account on modified object ended" doc:id="241e800b-a41a-4aa4-a5bf-d9ee0d0ac01e" message='#["Log Account on modified object ended"]' />
 	</flow>
 	<flow name="account-delete-flow" doc:id="dc7e6927-368c-4fc8-94a9-302ca2c54f80" >

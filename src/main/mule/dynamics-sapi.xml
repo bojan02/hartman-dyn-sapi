@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    
     <flow name="dynamics-sapi-main">
         <http:listener config-ref="dynamics-sapi-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -11,6 +12,7 @@
             </http:error-response>
         </http:listener>
         <apikit:router config-ref="dynamics-sapi-config" />
+		<error-handler ref="globalErrorHandler" />
     </flow>
     <flow name="dynamics-sapi-console">
         <http:listener config-ref="dynamics-sapi-httpListenerConfig" path="/console/*">
@@ -23,44 +25,48 @@
             </http:error-response>
         </http:listener>
         <apikit:console config-ref="dynamics-sapi-config" />
+		<error-handler ref="globalErrorHandler" />
     </flow>
-	<flow name="put:\account\(ID):application\json:dynamics-sapi-config" doc:id="5d2d5376-5231-41fa-942e-36a78f4a722d" >
-		<flow-ref doc:name="put-account-flow" doc:id="413eb05b-1f28-42f7-9624-79045f2aa137" name="put-account-flow" />
+	<flow name="put:\account\(ID):application\json:dynamics-sapi-config" doc:id="f5756367-4841-4ee9-a2a3-95a141887677" >
+		<flow-ref doc:name="put-account-flow" doc:id="99188a9d-946c-4689-ba97-05b23db3012e" name="put-account-flow" />
 	</flow>
-	<flow name="put:\contact\(ID):application\json:dynamics-sapi-config" doc:id="28327f2a-e308-4da4-83f0-b24510694ce5" >
-		<flow-ref doc:name="put-contact-flow" doc:id="3c3ab76e-1fd4-415e-a5ac-777a5fa2e74e" name="put-contact-flow" />
+	<flow name="put:\contact\(ID):application\json:dynamics-sapi-config" doc:id="da5f369e-85e4-4117-9399-32a572d7835c" >
+		<flow-ref doc:name="put-contact-flow" doc:id="2674f96b-44cf-4ef2-8c5a-361f4bb0084e" name="put-contact-flow" />
 	</flow>
-	<flow name="delete:\contact\(ID):dynamics-sapi-config" doc:id="50867ddd-2c5e-4b64-817f-6e007b239676" >
-		<flow-ref doc:name="delete-contact-flow" doc:id="d288da14-cdd0-44ab-9034-2ce1c0a9a55b" name="delete-contact-flow" />
+	<flow name="delete:\contact\(ID):dynamics-sapi-config" doc:id="a8fff0f1-be3d-446c-a04b-b29c1fc7c326" >
+		<flow-ref doc:name="delete-contact-flow" doc:id="81275d68-9b9f-4fa4-8e56-ac0cfd073de1" name="delete-contact-flow" />
 	</flow>
-	<flow name="delete:\account\(ID):dynamics-sapi-config" doc:id="aa0c310d-4423-4cdf-b680-d0ef6f6ae7b9" >
-		<flow-ref doc:name="delete-account-flow" doc:id="a739c27e-d9f2-455a-b517-664fcba4c179" name="delete-account-flow" />
+	<flow name="delete:\account\(ID):dynamics-sapi-config" doc:id="cfbefb88-7854-4afd-b36d-753e382ce135" >
+		<flow-ref doc:name="delete-account-flow" doc:id="14ecbd28-23ab-4ccf-ae19-4efc2edfd031" name="delete-account-flow" />
 	</flow>
-	<flow name="get:\account:dynamics-sapi-config" doc:id="555ab148-1cc3-40a8-87f4-18c656a5c820" >
-		<flow-ref doc:name="get-accounts-flow" doc:id="815c894b-9983-4a7f-8079-a9cece28b89f" name="get-accounts-flow" />
+	<flow name="get:\account:dynamics-sapi-config" doc:id="7e69bba8-3d54-4846-92da-1fbd9b5c9cde" >
+		<flow-ref doc:name="get-accounts-flow" doc:id="5f59df68-8a52-43b3-aca3-a33356645db3" name="get-accounts-flow" />
 	</flow>
-	<flow name="get:\contact:dynamics-sapi-config" doc:id="04d0752f-8aae-4ab4-b3dd-5078324e8450" >
-		<flow-ref doc:name="get-contacts-flow" doc:id="da25af05-4233-4db0-a55b-af57b5400ab5" name="get-contacts-flow" />
+	<flow name="get:\contact:dynamics-sapi-config" doc:id="a4efa9df-dc9f-4cf5-b6e5-fc38c3737487" >
+		<flow-ref doc:name="get-contacts-flow" doc:id="7ead383c-b5b1-4200-a183-c5c8187f290a" name="get-contacts-flow" />
 	</flow>
-	<flow name="get:\opportunity:dynamics-sapi-config" doc:id="b796f468-4c50-4511-ae13-ab96bc715897" >
-		<flow-ref doc:name="get-opportunities-flow" doc:id="9c8341af-a45b-409e-99d6-58ae2e030412" name="get-opportunities-flow" />
+	<flow name="get:\opportunity:dynamics-sapi-config" doc:id="90456dd1-5fd1-48bb-bb41-b1875df3800c" >
+		<flow-ref doc:name="get-opportunities-flow" doc:id="b68dbfd7-33bf-4f34-b3e6-960453c28888" name="get-opportunities-flow" />
 	</flow>
-	<flow name="get:\opportunity\(ID):dynamics-sapi-config" doc:id="227fc2ab-edc1-462c-a2ae-8c31bf893a5a" >
-		<flow-ref doc:name="get-opportunity-by-id-flow" doc:id="a7e4b6ae-fa3b-47b3-977b-297d0931bfd9" name="get-opportunity-by-id-flow" />
+	<flow name="get:\opportunity\(ID):dynamics-sapi-config" doc:id="448b9c96-1c6e-41ad-88a0-777ac78b0e2f" >
+		<flow-ref doc:name="get-opportunity-by-id-flow" doc:id="db9de42f-c485-4191-b10c-b313d470a6c9" name="get-opportunity-by-id-flow" />
 	</flow>
-	<flow name="get:\account\(ID):dynamics-sapi-config" doc:id="b604f4df-08b2-4796-b57e-314ae9ea4460" >
-		<flow-ref doc:name="get-account-by-id-flow" doc:id="41801c2f-1488-45c3-a17b-7bac1e0553fa" name="get-account-by-id-flow" />
+	<flow name="get:\account\(ID):dynamics-sapi-config" doc:id="96599c98-4e14-4bdc-89aa-85f08f0f2b81" >
+		<flow-ref doc:name="get-account-by-id-flow" doc:id="510d53ba-4d41-4d63-b857-586c667315a6" name="get-account-by-id-flow" />
 	</flow>
-	<flow name="get:\contact\(ID):dynamics-sapi-config" doc:id="1deb18df-503e-485a-a663-37735c88207e" >
-		<flow-ref doc:name="get-contact-by-id-flow" doc:id="2372298f-d34b-43b4-8aa7-f9d7a4a4146f" name="get-contact-by-id-flow" />
+	<flow name="get:\contact\(ID):dynamics-sapi-config" doc:id="05387872-67ac-4474-a43a-ba9d2be0ba3d" >
+		<flow-ref doc:name="get-contact-by-id-flow" doc:id="b4cbcd2b-3d9b-499b-9513-aacc4e50b695" name="get-contact-by-id-flow" />
 	</flow>
-	<flow name="post:\account:application\json:dynamics-sapi-config" doc:id="97c65338-3ae9-4575-89f9-d707414309d2" >
-		<flow-ref doc:name="post-account-flow" doc:id="308b4762-6ae4-4199-8d01-c49bc635aa9a" name="post-account-flow" />
+	<flow name="post:\account:application\json:dynamics-sapi-config" doc:id="e55ab47e-7066-4444-82f4-890e466f1182" >
+		<flow-ref doc:name="post-account-flow" doc:id="bf642b1b-3b10-4c6c-9f2b-3730b6560540" name="post-account-flow" />
 	</flow>
-	<flow name="post:\contact:application\json:dynamics-sapi-config" doc:id="db3ab734-dd94-4663-ac8a-1bafc44ea21f" >
-		<flow-ref doc:name="post-contact-flow" doc:id="ecf56ba2-4624-446f-92f0-0e37393f8fd3" name="post-contact-flow" />
+	<flow name="post:\contact:application\json:dynamics-sapi-config" doc:id="70852732-b810-458c-ae90-59441f0605be" >
+		<flow-ref doc:name="post-contact-flow" doc:id="c63e96f9-43bb-4584-bc9e-ffec366f7c05" name="post-contact-flow" />
 	</flow>
-	<flow name="post:\opportunity:application\json:dynamics-sapi-config" doc:id="009917e0-05c6-46e8-a14a-85c521638a1b" >
-		<flow-ref doc:name="post-opportunity-flow" doc:id="c3ff82b5-2a6d-4205-a9d1-eef89fd91151" name="post-opportunity-flow" />
+	<flow name="post:\opportunity:application\json:dynamics-sapi-config" doc:id="d0260ff4-1bfa-4b1d-9189-ff55f2aafe1d" >
+		<flow-ref doc:name="post-opportunity-flow" doc:id="eaaf1385-2e83-49a8-a98c-f9d725cbddd6" name="post-opportunity-flow" />
+	</flow>
+	<flow name="post:\dynquerycall:application\json:dynamics-sapi-config" doc:id="856facb1-0af8-4ca1-b92f-6bdc574003af" >
+		<flow-ref doc:name="query-call-retrieve-data-flow" doc:id="8f7c9deb-add7-4724-a124-22fdfdd2d87c" name="query-call-retrieve-data-flow" />
 	</flow>
 </mule>

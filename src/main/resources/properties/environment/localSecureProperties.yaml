@@ -3,12 +3,15 @@ certificate:
   password: '![Ymlc260Y7q/sDOeYQzXwqw==]'
   
 clientIdenforcement:
-  clientId: '![kVEqE7Qr86XoHlJGLU0UtIRA9LI3qFMvEd63SK4e3WCBf2jFgdY3tdQ892QJSpg4]'
-  clientSecret: '![DOPO0ZtBPjmlBul7P5BzYT4+mBPKFbiBFhOTJcNhunfvZ+aHOCv+4HiD5oUOsylN]'
+  clientId: '![xItuf3g6MK2zCxRNv2cCo9IRG9NmedKX+cXdt1jhUS3DXN9YZgmGaM605rQT1mkG]'
+  clientSecret: '![Ip/i8EdTY4GNJqpgMyhV6+RMcHqJpxz5kzhhfjo9xqNAE/KYsPfpTf+BgHqmrH8W]'
   
 dynamicsConfig:
   clientId: '![i1xMSMTa6fEQfB7281Fi7ScWNgmy/IriR2gFOQjUlgAtsdx7mOu/Z0XC9Gd69Jga]'
-  clientSecret: '![MRQif2Ezpl3v28BjEWLleSgzX9NyZ1WwyBnMvqftOIloBiF5BfszLtiGOymLnQPV]'
+  clientSecret: '![fc0qO6d5NN05Mpe7j4tHQ3CrpydByQM+f1a3iX3HTdUiMcVmGKWfKAAc2Q82QxVk]'
+  endpoint: '![iAgrH6PMlea1LkZYrK30i3qcEEqtZrSYw6eMGne5Ar31NCTjdJFlzCf2zoDLGPGY]'
+  tokenUrl: '![AwDj4mzS+MNC8/jFQZshWlqkzjvOVjxmo+Ak85BxXTCKdTdG4CpQA/r24u8TnM/y3yjs+s4fSC0oSwusfAsryaHesNxJoaYnKqy+24JpfCP3knCtrus5L1rZn4eAYyUB]'
+  scopes: '![iAgrH6PMlea1LkZYrK30i3qcEEqtZrSYw6eMGne5Ar2eYzRYJeaI1IVzk5shVUZu]'
   
 apiDiscovery:
-  apiId: '![J7zXGTcKS+vix/vEYPDAaA==]'
+  apiId: '![J6LTVW95ySbaMdwL65W1KA==]'

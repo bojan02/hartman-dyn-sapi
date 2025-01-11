@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:dynamics="http://www.mulesoft.org/schema/mule/dynamics" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:njams="http://www.mulesoft.org/schema/mule/njams" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd  http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/njams http://www.mulesoft.org/schema/mule/njams/current/mule-njams.xsd http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/dynamics http://www.mulesoft.org/schema/mule/dynamics/current/mule-dynamics.xsd">
-    <apikit:config name="dynamics-sapi-config" api="resource::b2364939-ddcb-4a64-a2ca-16799a22819a:dynamics-sapi:1.0.0:raml:zip:dynamics-sapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="dynamics-sapi-config" api="resource::43a45f61-92d2-4c3e-8bcf-a0ba6d792d89:dynamics-sapi:1.0.1:raml:zip:dynamics-sapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <http:request-config name="HTTP_Request_dynamics_sales_hub_configuration" doc:name="HTTP Request configuration" doc:id="1f270344-9a93-4b09-b2fc-a9131ce2ff92" basePath="/api">
-		<http:request-connection host="org9f1c12ff.api.crm4.dynamics.com" protocol="HTTPS"/>
-	</http:request-config>
-	<http:request-config name="HTTP_Request_login_microsoft_configuration" doc:name="HTTP Request configuration" doc:id="231d81c0-f5a1-4cbb-91ca-de539ed590cb" >
-		<http:request-connection protocol="HTTPS" host="login.microsoftonline.com" />
-	</http:request-config>
+        <http:request-connection host="org722b35aa.api.crm4.dynamics.com" protocol="HTTPS" />
+    </http:request-config>
+    <http:request-config name="HTTP_Request_login_microsoft_configuration" doc:name="HTTP Request configuration" doc:id="231d81c0-f5a1-4cbb-91ca-de539ed590cb">
+        <http:request-connection protocol="HTTPS" host="login.microsoftonline.com" />
+    </http:request-config>
     <http:listener-config name="dynamics-sapi-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="${https.port}" protocol="HTTPS">
             <tls:context>
@@ -31,16 +31,9 @@
         </http:request-connection>
     </http:request-config>
     <dynamics:dynamics-config name="Dynamics_365_Dynamics_365" doc:name="Dynamics 365 Dynamics 365" doc:id="a132476c-1477-446e-bacd-a395542fdd26">
-        <dynamics:oauth-client-credentials-connection endpoint="https://org9f1c12ff.crm4.dynamics.com/">
-            <dynamics:oauth-client-credentials clientId="${secure::dynamicsConfig.clientId}" clientSecret="${secure::dynamicsConfig.clientSecret}" tokenUrl="https://login.microsoftonline.com/4bf7b59d-2730-43a2-96a9-292d6f6f1ef9/oauth2/v2.0/token" scopes="https://org9f1c12ff.crm4.dynamics.com//.default" />
+        <dynamics:oauth-client-credentials-connection endpoint="${secure::dynamicsConfig.endpoint}">
+            <dynamics:oauth-client-credentials clientId="${secure::dynamicsConfig.clientId}" clientSecret="${secure::dynamicsConfig.clientSecret}" tokenUrl="${secure::dynamicsConfig.tokenUrl}" scopes="${secure::dynamicsConfig.scopes}" />
         </dynamics:oauth-client-credentials-connection>
     </dynamics:dynamics-config>
-	<api-gateway:autodiscovery apiId="${secure::apiDiscovery.apiId}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="c80eab82-3489-423f-9708-9f445599ebad" flowRef="dynamics-sapi-main" />
-	<njams:inline-configuration-config name="NJAMS_Inline_configuration" doc:name="NJAMS Inline configuration" doc:id="99e6a777-0cfa-4c96-9482-dc278e71b213" deployment="dyn-sapi" appName="1.0.0" >
-		<njams:communication-protocol >
-			<njams:http-instance host="os0146" port="8080" path="njams" dataProviderPrefix="sdk" >
-				<njams:authentication user="admin" password="admin" />
-			</njams:http-instance>
-		</njams:communication-protocol>
-	</njams:inline-configuration-config>
+    <api-gateway:autodiscovery apiId="${secure::apiDiscovery.apiId}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="c80eab82-3489-423f-9708-9f445599ebad" flowRef="dynamics-sapi-main" />
 </mule>

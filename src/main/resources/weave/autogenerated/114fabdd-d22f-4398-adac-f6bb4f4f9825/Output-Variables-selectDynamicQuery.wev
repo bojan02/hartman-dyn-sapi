@@ -1,4 +1,0 @@
-%dw 2.0
-
-type auto_114fabdd_d22f_4398_adac_f6bb4f4f9825_Output_Variables_selectDynamicQuery = Any
-

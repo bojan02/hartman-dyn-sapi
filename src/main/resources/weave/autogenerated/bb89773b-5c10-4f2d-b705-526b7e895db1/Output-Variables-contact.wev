@@ -1,9 +1,0 @@
-%dw 2.0
-
-type auto_bb89773b_5c10_4f2d_b705_526b7e895db1_Output_Variables_contact = {|
-  id: String | Null, 
-  firstName: String | Null, 
-  lastName: String | Null, 
-  accountNumber: Null
-|}
-

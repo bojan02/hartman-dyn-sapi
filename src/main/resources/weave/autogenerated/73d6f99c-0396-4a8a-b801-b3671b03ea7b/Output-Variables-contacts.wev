@@ -1,4 +1,0 @@
-%dw 2.0
-
-type auto_73d6f99c_0396_4a8a_b801_b3671b03ea7b_Output_Variables_contacts = Array<{|  contactid: String | Null,   firstname: String | Null,   lastname: String | Null,   accid: Null|}>
-

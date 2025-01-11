@@ -1,4 +1,0 @@
-%dw 2.0
-
-type auto_b81c2d06_3cc1_4cfb_9389_7c20661c0b59_Output_Payload = Array<{|  id: String | Null,   topic: String | Null,   potentialCustomer: Null,   status: Any,   estRevenue: Number | Null,   actualCloseDate: DateTime | Null|}>
-
